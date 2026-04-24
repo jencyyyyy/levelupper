@@ -1,9 +1,14 @@
+import os
 from flask import Flask, render_template, request, jsonify, Response
 from scraper import get_coordinate, find_no_website
 import pandas as pd
 import io
 
-app = Flask(__name__)
+# Vercel's serverless runtime does not guarantee a working directory,
+# so the template folder must be resolved to an absolute path relative
+# to this file to ensure Flask can locate index.html at runtime.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
 
 
 @app.route("/")
@@ -23,7 +28,7 @@ def search():
     coords = get_coordinate(location)
     if not coords:
         return jsonify({
-            "error": "Could not find that location. Try being more specific (e.g., 'Ramankulangara, Kollam')."
+            "error": "Could not find that location. Try being more specific (e.g., 'Sonadanga, Khulna')."
         }), 400
 
     results = find_no_website(location=coords, radius=5000, place_type=place_type)
