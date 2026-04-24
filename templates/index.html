@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Levelupper for business/title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      color: #1a1a2e;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4f46e5;
+      background: #fff;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    button {
+      padding: 10px 24px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #3730a3; }
+    button:active { transform: scale(0.98); }
+    button:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-left: 4px solid transparent;
+    }
+
+    .stat-card.urgent { border-left-color: #ef4444; }
+    .stat-card.medium { border-left-color: #f59e0b; }
+    .stat-card.low    { border-left-color: #22c55e; }
+
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #888;
+    }
+
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-top: 4px;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .results-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .export-btn {
+      background: #10b981;
+      font-size: 0.85rem;
+      padding: 8px 18px;
+    }
+
+    .export-btn:hover { background: #059669; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid #e8e8e8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead tr {
+      background: #f8f9fc;
+      border-bottom: 2px solid #e8e8e8;
+    }
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbff; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-urgent { background: #fee2e2; color: #b91c1c; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-low    { background: #dcfce7; color: #166534; }
+
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-bar-track {
+      flex: 1;
+      height: 6px;
+      background: #e8e8e8;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: #4f46e5;
+    }
+
+    .maps-link {
+      color: #4f46e5;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .maps-link:hover { text-decoration: underline; }
+
+    .name-cell { font-weight: 600; color: #1a1a2e; }
+    .reasons-cell { color: #666; font-size: 0.8rem; line-height: 1.5; }
+    .phone-cell { font-family: monospace; font-size: 0.85rem; }
+
+    #error-msg {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 16px;
+      display: none;
+    }
+
+    #status {
+      text-align: center;
+      padding: 32px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #c7d2fe;
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #results-section { display: none; }
+
+    @media (max-width: 700px) {
+      .form-row { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Business Levelupper</h1>
+    <p>Find businesses without websites, sorted by urgency</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <div class="form-row">
+      <div>
+        <label for="location">Location</label>
+        <input id="location" type="text" placeholder="e.g.Sonadanga, Khulna " />
+        <p class="hint">Be specific — use a neighbourhood for better results</p>
+      </div>
+      <div>
+        <label for="place-type">Business Type</label>
+        <select id="place-type">
+          <option value="restaurant">Restaurant</option>
+          <option value="doctor">Doctor</option>
+          <option value="dentist">Dentist</option>
+          <option value="gym">Gym</option>
+          <option value="lawyer">Lawyer</option>
+          <option value="hotel">Hotel</option>
+          <option value="beauty_salon">Beauty Salon</option>
+          <option value="school">School</option>
+        </select>
+      </div>
+      <div>
+        <button id="search-btn" onclick="runSearch()">Search</button>
+      </div>
+    </div>
+    <div id="error-msg"></div>
+  </div>
+
+  <div id="status" style="display:none;"></div>
+
+  <div id="results-section">
+    <div class="stats">
+      <div class="stat-card urgent">
+        <div class="stat-label">Urgent</div>
+        <div class="stat-value" id="count-urgent">0</div>
+      </div>
+      <div class="stat-card medium">
+        <div class="stat-label">Medium</div>
+        <div class="stat-value" id="count-medium">0</div>
+      </div>
+      <div class="stat-card low">
+        <div class="stat-label">Low</div>
+        <div class="stat-value" id="count-low">0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="results-header">
+        <h2 id="results-title">Results</h2>
+        <button class="export-btn" onclick="exportCSV()">Download CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Score</th>
+              <th>Business</th>
+              <th>Phone</th>
+              <th>Rating</th>
+              <th>Reviews</th>
+              <th>Signals</th>
+              <th>Maps</th>
+            </tr>
+          </thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let cachedResults = [];
+
+  async function runSearch() {
+    const location = document.getElementById('location').value.trim();
+    const placeType = document.getElementById('place-type').value;
+    const errBox = document.getElementById('error-msg');
+    const btn = document.getElementById('search-btn');
+
+    errBox.style.display = 'none';
+    document.getElementById('results-section').style.display = 'none';
+
+    if (!location) {
+      errBox.textContent = 'Please enter a location.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    showStatus('<span class="spinner"></span> Searching — this may take 20-40 seconds depending on result count...');
+
+    try {
+      const res = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location, place_type: placeType })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errBox.textContent = data.error || 'An error occurred. Please try again.';
+        errBox.style.display = 'block';
+        hideStatus();
+        return;
+      }
+
+      cachedResults = data.results;
+      renderResults(data.results);
+
+    } catch (e) {
+      errBox.textContent = 'Network error. Please check your connection and try again.';
+      errBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      hideStatus();
+    }
+  }
+
+  function renderResults(results) {
+    const urgent = results.filter(r => r.label === 'URGENT').length;
+    const medium = results.filter(r => r.label === 'MEDIUM').length;
+    const low    = results.filter(r => r.label === 'LOW').length;
+
+    document.getElementById('count-urgent').textContent = urgent;
+    document.getElementById('count-medium').textContent = medium;
+    document.getElementById('count-low').textContent = low;
+    document.getElementById('results-title').textContent =
+      `${results.length} businesses found without a website`;
+
+    const tbody = document.getElementById('results-body');
+    tbody.innerHTML = '';
+
+    results.forEach(r => {
+      const badgeClass = r.label === 'URGENT' ? 'badge-urgent'
+                        : r.label === 'MEDIUM' ? 'badge-medium'
+                        : 'badge-low';
+      const fillWidth = Math.min(r.score, 100);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="badge ${badgeClass}">${r.label}</span></td>
+        <td>
+          <div class="score-bar">
+            <span style="font-weight:600;min-width:28px">${r.score}</span>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="width:${fillWidth}%"></div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="name-cell">${escHtml(r.name)}</div>
+          <div style="font-size:0.75rem;color:#999;margin-top:2px">${escHtml(r.address)}</div>
+        </td>
+        <td class="phone-cell">${escHtml(r.phone)}</td>
+        <td>${r.rating || '—'}</td>
+        <td>${r.reviews || '—'}</td>
+        <td class="reasons-cell">${escHtml(r.reasons)}</td>
+        <td><a class="maps-link" href="${r.maps_link}" target="_blank" rel="noopener">View</a></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('results-section').style.display = 'block';
+  }
+
+  async function exportCSV() {
+    if (!cachedResults.length) return;
+
+    const res = await fetch('/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ results: cachedResults })
+    });
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'leads.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function showStatus(html) {
+    const s = document.getElementById('status');
+    s.innerHTML = html;
+    s.style.display = 'block';
+  }
+
+  function hideStatus() {
+    document.getElementById('status').style.display = 'none';
+  }
+
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  document.getElementById('location').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runSearch();
+  });
+</script>
+
+</body>
+</html>
