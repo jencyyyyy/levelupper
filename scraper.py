@@ -45,18 +45,53 @@ def get_website_and_phone(place_id):
 
 
 def get_coordinate(place_name):
+    """
+    Returns (coords_string, error_message).
+    On success: (coords, None). On failure: (None, human-readable reason).
+    """
+    if not API_KEY:
+        return None, (
+            "API key is not set. Add API_KEY to your Vercel environment variables "
+            "under Settings > Environment Variables."
+        )
+
     url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {
-        "address": place_name,
-        "key": API_KEY
-    }
+    params = {"address": place_name, "key": API_KEY}
     response = requests.get(url, params=params)
     data = response.json()
+    status = data.get("status", "UNKNOWN_ERROR")
 
-    if data.get("results"):
-        location = data["results"][0]["geometry"]["location"]
-        return f"{location['lat']},{location['lng']}"
-    return None
+    if status == "OK" and data.get("results"):
+        loc = data["results"][0]["geometry"]["location"]
+        return f"{loc['lat']},{loc['lng']}", None
+
+    status_messages = {
+        "ZERO_RESULTS": (
+            f"No results found for '{place_name}'. "
+            "Try being more specific, e.g. 'Sonadanga, Khulna, Bangladesh'."
+        ),
+        "REQUEST_DENIED": (
+            "Google API request was denied. Check that: (1) the API_KEY is set "
+            "correctly in Vercel Settings > Environment Variables, and (2) both "
+            "the Geocoding API and Places API are enabled in Google Cloud Console."
+        ),
+        "INVALID_REQUEST": (
+            "The location value sent to Google was empty or malformed."
+        ),
+        "OVER_DAILY_LIMIT": (
+            "Your Google API key has exceeded its daily quota or billing is not "
+            "enabled on your Google Cloud project."
+        ),
+        "OVER_QUERY_LIMIT": (
+            "Google API rate limit hit. Wait a moment and try again."
+        ),
+    }
+
+    message = status_messages.get(
+        status,
+        f"Google Geocoding API returned an unexpected status: {status}."
+    )
+    return None, message
 
 
 def calculate_urgency(business):
