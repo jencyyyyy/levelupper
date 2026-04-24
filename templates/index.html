@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Levelupper for business</title>
+  <title>levelupper — Lead Finder</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -381,7 +381,7 @@
     }
 
     btn.disabled = true;
-    showStatus('<span class="spinner"></span> Searching — this may take 20-40 seconds depending on result count...');
+    showStatus('<span class="spinner"></span> Searching — this may take 5-10 seconds...');
 
     try {
       const res = await fetch('/search', {
